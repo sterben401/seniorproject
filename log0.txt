@@ -1,0 +1,100 @@
+Date and Time: 2023-03-19 04:12:08
+Action: 02:21:16.830253 +0700] ZBYPLCgf7OD1zsLu90U0pwAAAAA 127.0.0.1 48412 127.0.0.1 80
+Request ID: 7290d6b-A--
+Login: '
+Password: ''
+
+Date and Time: 2023-03-19 04:12:08
+Action: login=%3D%3D%3D&password=1234%3D%3D&security_level=0&form=submit
+Request ID: 7290d6b-C--
+Login: `
+Password: `
+
+Date and Time: 2023-03-19 04:12:08
+Action: 02:21:42.857547 +0700] ZBYPRv_bPxmTNCvGl82dOAAAAAE 127.0.0.1 48414 127.0.0.1 80
+Request ID: 7290d6b-A--
+Login: " OR 1 = 1 -- -
+Password: " OR 1 = 1 -- -
+
+Date and Time: 2023-03-19 04:12:08
+Action: login=%27%3D%27&password=%22%3D%22&security_level=0&form=submit
+Request ID: 7290d6b-C--
+Login: " OR 1 = 1 -- -
+Password: " OR 1 = 1 -- -
+
+Date and Time: 2023-03-19 04:12:08
+Action: 02:22:21.399661 +0700] ZBYPbU8gbs-uFMsjAzThBgAAAAI 127.0.0.1 48416 127.0.0.1 80
+Request ID: 7290d6b-A--
+Login: " OR 1 = 1 -- -
+Password: " OR 1 = 1 -- -
+
+Date and Time: 2023-03-19 04:12:08
+Action: login=%27LIKE%27&password=1234&security_level=0&form=submit
+Request ID: 7290d6b-C--
+Login: " OR 1 = 1 -- -
+Password: " OR 1 = 1 -- -
+
+Date and Time: 2023-03-19 04:12:08
+Action: 02:34:57.093373 +0700] ZBYSYYu9SWQXa9hWgMyAJQAAAAM 127.0.0.1 48420 127.0.0.1 80
+Request ID: 7290d6b-A--
+Login: " OR 1 = 1 -- -
+Password: " OR 1 = 1 -- -
+
+Date and Time: 2023-03-19 04:12:08
+Action: login=%27+or+%22&password=%27+or+%22&security_level=0&form=submit
+Request ID: 7290d6b-C--
+Login: ' AND id IS NULL; --
+Password: ' AND id IS NULL; --
+
+Date and Time: 2023-03-19 04:12:08
+Action: 03:10:07.658497 +0700] ZBYan4QbsCmGd8fbOPCcxAAAAAQ 127.0.0.1 48474 127.0.0.1 80
+Request ID: 7290d6b-A--
+Login: ' AND id IS NULL; --
+Password: ' AND id IS NULL; --
+
+Date and Time: 2023-03-19 04:12:08
+Action: login=%27+or+%22&password=%27+or+%22&security_level=0&form=submit
+Request ID: 7290d6b-C--
+Login: " OR "" = "
+Password: " OR "" = "
+
+Date and Time: 2023-03-19 04:12:08
+Action: 03:10:48.575979 +0700] ZBYayCgf7OD1zsLu90U0vgAAAAA 127.0.0.1 48476 127.0.0.1 80
+Request ID: ec6cd35-A--
+Login: " OR "" = "
+Password: " OR "" = "
+
+Date and Time: 2023-03-19 04:12:08
+Action: login=test&password=test&security_level=0&form=submit
+Request ID: ec6cd35-C--
+Login: test
+Password: test
+
+Date and Time: 2023-03-19 04:12:08
+Action: 03:11:17.854499 +0700] ZBYa5X1eWIRSiaJr91SneQAAAAU 127.0.0.1 48478 127.0.0.1 80
+Request ID: 7290d6b-A--
+Login: ' or "
+Password: ' or "
+
+Date and Time: 2023-03-19 04:12:08
+Action: login=test&password=test&security_level=0&form=submit
+Request ID: 7290d6b-C--
+Login: test
+Password: test
+
+Date and Time: 2023-03-19 04:12:08
+Action: 03:11:17.969433 +0700] ZBYa5f_bPxmTNCvGl82dPQAAAAE 127.0.0.1 48480 127.0.0.1 80
+Request ID: ec6cd35-A--
+Login: ' or "
+Password: ' or "
+
+Date and Time: 2023-03-19 04:12:08
+Action: login=test&password=test&security_level=0&form=submit
+Request ID: ec6cd35-C--
+Login: test
+Password: test
+
+Date and Time: 2023-03-19 04:12:08
+Action: 03:11:18.096779 +0700] ZBYa5ou9SWQXa9hWgMyAKQAAAAM 127.0.0.1 48482 127.0.0.1 80
+Request ID: ec6cd35-A--
+Login: 'LIKE'
