@@ -123,8 +123,8 @@
                 <div class="g-recaptcha" data-sitekey="6Lf3efMpAAAAAJUAHpOsYK3n218utU1idY57_dbP"></div>
             </div>
             <div class="text-center">
-                <button type="submit" name="register" class="btn btn-primary">ลงทะเบียน</button>
-                <a class="btn btn-danger ms-2" href="admin.php">กลับไปหน้าหลัก</a>
+                <button type="submit" name="register" class="btn btn-primary"><i class="fa fa-edit"></i> ลงทะเบียน</button>
+                <a class="btn btn-danger ms-2" href="admin.php"><i class="fa fa-home"></i> กลับไปหน้าหลัก</a>
             </div>
         </form>
     </div>

@@ -15,9 +15,8 @@ if (isset($_SESSION['admin_login'])) {
     header('location: signin.php');
     exit();
 }
-
+$page_title = $role === 'admin' ? '(ADMIN) A Brute Force Attack Monitoring System' : '(USER) A Brute Force Attack Monitoring System';
 ?>
-
 
 
 <!DOCTYPE html>
@@ -25,17 +24,13 @@ if (isset($_SESSION['admin_login'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>(ADMIN) A Brute Force Attack Monitoring System</title>
+    <title><?php echo $page_title; ?></title> <!-- Dynamically set title -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-         body {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.5), rgba(0, 0, 0, 0.5)); /* ไล่สีจากสีเหลืองไปสีดำ */
-            background-size: cover; /* ปรับขนาดให้เต็มพื้นที่ */
-            margin: 0; /* ลบ margin ของ body */
-            height: 100vh; /* ให้ความสูงของ body เป็น 100% ของ viewport */
-
-	font-family: 'Arial', sans-serif;
+        body {
+            background: linear-gradient(135deg, #A9A9A9, #FFD700); /* ไล่สีพื้นหลัง */
+            font-family: 'Arial', sans-serif;
         }
 
         .navbar {
@@ -149,10 +144,10 @@ if (isset($_SESSION['admin_login'])) {
 
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand"><span class="admin">(ADMIN)</span> <span class="system">A Brute Force Attack Monitoring System</span></a>
+        <a class="navbar-brand"><span class="admin">(USER)</span> <span class="system">A Brute Force Attack Monitoring System</span></a>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-              <a class="nav-item nav-link active" 
+               <a class="nav-item nav-link active" 
    href="<?php 
       if (isset($_SESSION['admin_login'])) {
           echo 'admin.php';  // Admin dashboard
@@ -173,37 +168,22 @@ if (isset($_SESSION['admin_login'])) {
 
 <div class="container mt-5">
     <?php 
-    
-        if (isset($_SESSION['admin_login'])) {
-            $admin_id = $_SESSION['admin_login'];
+    session_start(); // Start the session
+require_once 'config/db.php'; // Include your database connection
+
+        if (isset($_SESSION['user_login'])) {
+            $admin_id = $_SESSION['user_login'];
             $stmt = $conn->prepare("SELECT * FROM users WHERE id = :id");
-            $stmt->bindParam(':id', $admin_id);
+            $stmt->bindParam(':id', $user_id);
             $stmt->execute();
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
         }
     ?>
     <div class="text-center">
-        <h3 class="system">Welcome Admin, <?php echo htmlspecialchars($row['firstname'] . ' ' . $row['lastname']); ?></h3>
+        <h3 class="system">Welcome User,<?php echo htmlspecialchars($row['firstname'] . ' ' . $row['lastname']); ?></h3>
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 g-4 mt-4">
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">แก้ไข/ลบ ผู้ดูแลระบบทั่วไป</h5>
-                    <a href="homeEditUser.php" class="btn btn-warning btn-lg"><i class="fas fa-edit fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
-        </div>
-        
-         <!--<div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">ลงทะเบียนผู้ใช้งาน</h5>
-                    <a href="register.php" class="btn btn-success btn-lg"><i class="fas fa-user-plus fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
-        </div>-->
         <div class="col">
             <div class="card">
                 <div class="card-body text-center">

@@ -2,33 +2,22 @@
 session_start();
 require_once 'config/db.php';
 
-// Determine user role based on session
-if (isset($_SESSION['admin_login'])) {
-    $role = 'admin';
-    $user_id = $_SESSION['admin_login']; // Store admin ID for later use
-} elseif (isset($_SESSION['user_login'])) {
-    $role = 'user';
-    $user_id = $_SESSION['user_login']; // Store user ID for later use
-} else {
-    // No one is logged in
+if (!isset($_SESSION['admin_login'])) {
     $_SESSION['error'] = 'กรุณาเข้าสู่ระบบ!';
     header('location: signin.php');
-    exit();
 }
-
 ?>
 
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>(ADMIN) A Brute Force Attack Monitoring System</title>
+    <title>Edit User</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
+     <style>
          body {
             background: linear-gradient(135deg, rgba(255, 215, 0, 0.5), rgba(0, 0, 0, 0.5)); /* ไล่สีจากสีเหลืองไปสีดำ */
             background-size: cover; /* ปรับขนาดให้เต็มพื้นที่ */
@@ -90,7 +79,7 @@ if (isset($_SESSION['admin_login'])) {
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
-        .card:hover {•••••••••
+        .card:hover {
             transform: translateY(-10px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
@@ -145,25 +134,14 @@ if (isset($_SESSION['admin_login'])) {
         }
     </style>
 </head>
+</head>
 <body>
-
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
         <a class="navbar-brand"><span class="admin">(ADMIN)</span> <span class="system">A Brute Force Attack Monitoring System</span></a>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-              <a class="nav-item nav-link active" 
-   href="<?php 
-      if (isset($_SESSION['admin_login'])) {
-          echo 'admin.php';  // Admin dashboard
-      } elseif (isset($_SESSION['user_login'])) {
-          echo 'homeuser.php';  // User dashboard
-      } else {
-          echo 'signin.php';  // Redirect to login if no session
-      }
-   ?>">
-   <i class="fas fa-home fa-icon"></i> Home
-</a> 
+                <a class="nav-item nav-link" href="admin.php"><i class="fas fa-home fa-icon"></i>Home</a>
                 <a class="nav-item nav-link" href="profile.php"><i class="fas fa-user fa-icon"></i>Profile</a>
                 <a class="nav-item nav-link" href="logout.php"><i class="fas fa-sign-out-alt fa-icon"></i>Logout</a>
             </div>
@@ -171,67 +149,31 @@ if (isset($_SESSION['admin_login'])) {
     </div>
 </nav>
 
-<div class="container mt-5">
-    <?php 
-    
-        if (isset($_SESSION['admin_login'])) {
-            $admin_id = $_SESSION['admin_login'];
-            $stmt = $conn->prepare("SELECT * FROM users WHERE id = :id");
-            $stmt->bindParam(':id', $admin_id);
-            $stmt->execute();
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        }
-    ?>
-    <div class="text-center">
-        <h3 class="system">Welcome Admin, <?php echo htmlspecialchars($row['firstname'] . ' ' . $row['lastname']); ?></h3>
+    <div class="container pattern-container">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="system">แก้ไขข้อมูลผู้ใช้/ผู้ใช้ที่รอการอนุมัติ</h1>
+                <div class="add-edit-button">
+                    <a href="approvePage.php" class="btn btn-success btn-lg">
+                        <i class="bi bi-plus-lg"></i> ผู้ใช้ที่รอการอนุมัติ
+                    </a>
+                    <a href="edit.php" class="btn btn-primary btn-lg">
+                        <i class="bi bi-pencil"></i> แก้ไขข้อมูลผู้ใช้
+                    </a>
+                    
+
+                </div>
+            </div>
+        </div>
+                    <a type="button" class="btn btn-danger btn-lg" href="admin.php">
+           		<i class="fas fa-home fa-icon"></i> กลับไปหน้าหลัก
+       		   </a>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-4 mt-4">
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">แก้ไข/ลบ ผู้ดูแลระบบทั่วไป</h5>
-                    <a href="homeEditUser.php" class="btn btn-warning btn-lg"><i class="fas fa-edit fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
-        </div>
-        
-         <!--<div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">ลงทะเบียนผู้ใช้งาน</h5>
-                    <a href="register.php" class="btn btn-success btn-lg"><i class="fas fa-user-plus fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
-        </div>-->
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">เพิ่ม/ลบ Pattern</h5>
-                    <a href="pattern.php" class="btn btn-primary btn-lg"><i class="fas fa-cogs fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">ประวัติการโจมตี</h5>
-                    <a href="history.php" class="btn btn-warning btn-lg"><i class="fas fa-history fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">Run Pattern Detected</h5>
-                    <a href="checkScript.php" class="btn btn-primary btn-lg"><i class="fas fa-cogs fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq9k8w2Nf1m56w27gcsE7VVFVV8PzABnJ5RsiQ90Cn3z7y8u7v" crossorigin="anonymous"></script>
+    <!-- Bootstrap Icons CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-6Nq2E7PxeHnAFO/x9pVxTqIBwT5Gc1WQzdHb7rjAfm80+7zP+g5BX4kYG7buE3jz2" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
 </body>
 </html>
 

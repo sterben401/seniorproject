@@ -1,14 +1,17 @@
 <?php
 session_start();
 require_once 'config/db.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+// Add new group
 
-// Determine user role based on session
+// Check if admin or user is logged in
 if (isset($_SESSION['admin_login'])) {
+    // Admin is logged in
     $role = 'admin';
-    $user_id = $_SESSION['admin_login']; // Store admin ID for later use
 } elseif (isset($_SESSION['user_login'])) {
+    // User is logged in
     $role = 'user';
-    $user_id = $_SESSION['user_login']; // Store user ID for later use
 } else {
     // No one is logged in
     $_SESSION['error'] = 'กรุณาเข้าสู่ระบบ!';
@@ -16,17 +19,66 @@ if (isset($_SESSION['admin_login'])) {
     exit();
 }
 
+if (isset($_POST['add_group'])) {
+    $group_name = $_POST['group_name'];
+    $group_description = $_POST['group_description'];
+    $threshold = $_POST['threshold']; // Get the Threshold value
+
+    // ตรวจสอบค่า Threshold ให้อยู่ในช่วง 1-1000
+    if (!is_numeric($threshold) || $threshold < 1 || $threshold > 1000) {
+        $_SESSION['error'] = "Threshold ต้องเป็นตัวเลขระหว่าง 1 ถึง 1000!";
+        header("Location: add_group.php");
+        exit();
+    }
+    
+
+    // ตรวจสอบว่าชื่อกลุ่มมีอยู่ในฐานข้อมูลหรือไม่
+    $stmt_check = $conn->prepare("SELECT COUNT(*) FROM AttackGroup WHERE name = ?");
+    $stmt_check->execute([$group_name]);
+    $count = $stmt_check->fetchColumn();
+
+    if ($count > 0) {
+        $_SESSION['error'] = "ชื่อกลุ่มนี้มีอยู่แล้ว!";
+        header("Location: add_group.php");
+        exit();
+    }
+     if (preg_match('/[^a-zA-Z0-9ก-ฮาเ-์]/u', $group_name)) {
+        $_SESSION['error'] = "ชื่อกลุ่มไม่ควรมีอักขระพิเศษ!";
+        header("Location: add_group.php");
+        exit();
+    }
+
+
+    // Prepare the SQL statement to insert the new group
+    $stmt = $conn->prepare("INSERT INTO AttackGroup (name, description, Threshold) VALUES (:name, :description, :threshold)");
+
+    // Bind parameters
+    $stmt->bindValue(':name', $group_name);
+    $stmt->bindValue(':description', $group_description);
+    $stmt->bindValue(':threshold', $threshold, PDO::PARAM_INT); // ระบุว่าเป็นตัวเลข
+
+    // Execute the statement
+    if ($stmt->execute()) {
+        $_SESSION['message'] = "Group added successfully!";
+    } else {
+        $_SESSION['message'] = "Error adding group. Please try again.";
+    }
+
+    // Redirect back to the add_group.php page
+    header("Location: add_group.php");
+    exit();
+}
+
+
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>(ADMIN) A Brute Force Attack Monitoring System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Add Group</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
          body {
@@ -90,7 +142,7 @@ if (isset($_SESSION['admin_login'])) {
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
-        .card:hover {•••••••••
+        .card:hover {
             transform: translateY(-10px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
@@ -146,24 +198,23 @@ if (isset($_SESSION['admin_login'])) {
     </style>
 </head>
 <body>
-
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand"><span class="admin">(ADMIN)</span> <span class="system">A Brute Force Attack Monitoring System</span></a>
+         <a class="navbar-brand">
+   <span class="role" style="color: #FFD700;">
+      <?php 
+         if (isset($_SESSION['admin_login'])) {
+             echo '(ADMIN)';  // Display ADMIN if admin is logged in
+         } elseif (isset($_SESSION['user_login'])) {
+             echo '(USER)';   // Display USER if regular user is logged in
+         } 
+      ?>
+   </span>
+   <span class="system">A Brute Force Attack Monitoring System</span>
+</a>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-              <a class="nav-item nav-link active" 
-   href="<?php 
-      if (isset($_SESSION['admin_login'])) {
-          echo 'admin.php';  // Admin dashboard
-      } elseif (isset($_SESSION['user_login'])) {
-          echo 'homeuser.php';  // User dashboard
-      } else {
-          echo 'signin.php';  // Redirect to login if no session
-      }
-   ?>">
-   <i class="fas fa-home fa-icon"></i> Home
-</a> 
+                <a class="nav-item nav-link" href="admin.php"><i class="fas fa-home fa-icon"></i>Home</a>
                 <a class="nav-item nav-link" href="profile.php"><i class="fas fa-user fa-icon"></i>Profile</a>
                 <a class="nav-item nav-link" href="logout.php"><i class="fas fa-sign-out-alt fa-icon"></i>Logout</a>
             </div>
@@ -171,67 +222,45 @@ if (isset($_SESSION['admin_login'])) {
     </div>
 </nav>
 
-<div class="container mt-5">
-    <?php 
-    
-        if (isset($_SESSION['admin_login'])) {
-            $admin_id = $_SESSION['admin_login'];
-            $stmt = $conn->prepare("SELECT * FROM users WHERE id = :id");
-            $stmt->bindParam(':id', $admin_id);
-            $stmt->execute();
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        }
-    ?>
-    <div class="text-center">
-        <h3 class="system">Welcome Admin, <?php echo htmlspecialchars($row['firstname'] . ' ' . $row['lastname']); ?></h3>
-    </div>
+<div class="container form-container">
 
-    <div class="row row-cols-1 row-cols-md-2 g-4 mt-4">
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">แก้ไข/ลบ ผู้ดูแลระบบทั่วไป</h5>
-                    <a href="homeEditUser.php" class="btn btn-warning btn-lg"><i class="fas fa-edit fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
+    <h1 class="text-center">Add Group</h1>
+    <?php if (isset($_SESSION['message'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?php echo $_SESSION['message']; unset($_SESSION['message']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        
-         <!--<div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">ลงทะเบียนผู้ใช้งาน</h5>
-                    <a href="register.php" class="btn btn-success btn-lg"><i class="fas fa-user-plus fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
-        </div>-->
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">เพิ่ม/ลบ Pattern</h5>
-                    <a href="pattern.php" class="btn btn-primary btn-lg"><i class="fas fa-cogs fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">ประวัติการโจมตี</h5>
-                    <a href="history.php" class="btn btn-warning btn-lg"><i class="fas fa-history fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
+    <?php endif; ?>
+
+    <!-- Form to add a new group -->
+    <form action="add_group.php" method="post">
+        <div class="mb-3">
+            <label for="group_name" class="form-label">New Group Name</label>
+            <input type="text" name="group_name" class="form-control" id="group_name" required>
         </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="system">Run Pattern Detected</h5>
-                    <a href="checkScript.php" class="btn btn-primary btn-lg"><i class="fas fa-cogs fa-icon"></i> คลิ๊กที่นี่</a>
-                </div>
-            </div>
+        <div class="mb-3">
+            <label for="group_description" class="form-label">Description</label>
+            <textarea name="group_description" class="form-control" id="group_description" rows="3" required></textarea>
         </div>
-    </div>
+        <div class="mb-3">
+            <label for="threshold" class="form-label">Threshold</label>
+            <input type="number" name="threshold" class="form-control" id="threshold" required>
+        </div>
+        <button type="submit" name="add_group" class="btn btn-primary">Add Group</button>
+        <a type="button" class="btn btn-danger" href="pattern.php">
+            <i class="fas fa-angle-left"></i> กลับ
+        </a>
+    </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq9k8w2Nf1m56w27gcsE7VVFVV8PzABnJ5RsiQ90Cn3z7y8u7v" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 

@@ -2,88 +2,33 @@
 session_start();
 require_once 'config/db.php';
 
-// Check if a type is selected
-if (isset($_POST['selected_type'])) {
-    $selected_type = $_POST['selected_type'];
-} else {
-    // Default to the first type if not selected
-    $types = getPatternTypes($conn);
-    if (!empty($types)) {
-        $selected_type = $types[0]['type'];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_pattern'])) {
+    $pattern_id = $_POST['pattern_id'];
+    $new_name = $_POST['new_name'];
+
+    // ป้องกันการโจมตี XSS
+    $new_name = htmlspecialchars($new_name);
+
+    // การอัปเดตข้อมูลในฐานข้อมูล
+    $updateQuery = "UPDATE patterns SET namePattern = :namePattern WHERE id = :id";
+    $updateStmt = $conn->prepare($updateQuery);
+    $updateStmt->execute(['namePattern' => $new_name, 'id' => $pattern_id]);
+
+    // ตรวจสอบผลลัพธ์
+    if ($updateStmt->rowCount() > 0) {
+        $_SESSION['success'] = 'แก้ไข Pattern สำเร็จ';
     } else {
-        $selected_type = "";
+        $_SESSION['error'] = 'ไม่สามารถแก้ไข Pattern ได้';
     }
-}
 
-$success_message = "";
-// Fetch all types for the dropdown
-$types = getPatternTypes($conn);
-
-// Fetch patterns for the selected type
-$patterns = getPatternsForType($conn, $selected_type);
-
-// Function to fetch pattern types
-function getPatternTypes($conn)
-{
-    $stmt = $conn->prepare("SELECT DISTINCT type FROM pattern");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-// Function to fetch patterns for a specific type
-function getPatternsForType($conn, $type)
-{
-    $stmt = $conn->prepare("SELECT namePattern FROM pattern WHERE type = :type");
-    $stmt->bindParam(':type', $type);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-// Update patterns for the selected type
-if (isset($_POST['update_patterns'])) {
-    $selected_type = $_POST['selected_type'];
-    $new_patterns = explode("\n", $_POST['patterns']);
-
-    // Clear existing patterns for the selected type
-    $stmt = $conn->prepare("DELETE FROM pattern WHERE type = :type");
-    $stmt->bindParam(':type', $selected_type);
-    $stmt->execute();
-
-    // Insert new patterns
-    $stmt = $conn->prepare("INSERT INTO pattern (type, namePattern, md5) VALUES (:type, :pattern, :md5)");
-    
-    $success = true; // Flag to track if the update was successful
-    
-    foreach ($new_patterns as $new_pattern) {
-        $new_pattern = trim($new_pattern);
-        
-        if (!empty($new_pattern)) {
-            $md5 = md5($new_pattern);
-            
-            $stmt->bindParam(':type', $selected_type);
-            $stmt->bindParam(':pattern', $new_pattern);
-            $stmt->bindParam(':md5', $md5);
-            
-            if (!$stmt->execute()) {
-                $success = false; // Update failed
-                break; // Exit the loop on the first failure
-            }
-        }
-    }
-    
-    if ($success) {
-        $_SESSION['success_message'] = "อัพเดตรายการ Pattern สำเร็จ";
-    } else {
-        $_SESSION['error_message'] = "เกิดข้อผิดพลาดในการอัพเดต Pattern";
-    }
-    
-    // Redirect back to the same page with a success or error message
-    header("location: edit_pattern.php");
+    // เปลี่ยนเส้นทางกลับไปยังหน้าที่แสดง Pattern
+    header("Location: your_pattern_page.php");
     exit();
 }
+
 ?>
 
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -177,5 +122,5 @@ if (isset($_POST['update_patterns'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+vpQlZO4vI" crossorigin="anonymous"></script>
 </body>
-</html>
+</html>-->
 

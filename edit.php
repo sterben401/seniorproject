@@ -15,14 +15,29 @@ try {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    if (isset($_SESSION['admin_login'])) {
-        $admin_id = $_SESSION['admin_login'];
-        $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->bind_param("i", $admin_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-    }
+    // Pagination setup
+    $limit = 10; // จำนวนผู้ใช้ต่อหน้า
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($page - 1) * $limit;
+
+    // ดึงข้อมูลผู้ใช้ที่อยู่ในระบบ
+    $stmt = $conn->prepare("SELECT * FROM users WHERE status = 'active' LIMIT ?, ?");
+    $stmt->bind_param("ii", $offset, $limit);
+    $stmt->execute();
+    $existing_users = $stmt->get_result();
+
+    // นับจำนวนผู้ใช้ทั้งหมดสำหรับการแบ่งหน้า
+    $total_stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE status = 'active'");
+    $total_stmt->execute();
+    $total_users = $total_stmt->get_result()->fetch_row()[0];
+    $total_pages = ceil($total_users / $limit);
+
+    // ดึงข้อมูลผู้ใช้ที่สมัครแต่ต้องการการอนุมัติ
+    $stmt_pending = $conn->prepare("SELECT * FROM users WHERE status = 'pending' LIMIT ?, ?");
+    $stmt_pending->bind_param("ii", $offset, $limit);
+    $stmt_pending->execute();
+    $pending_users = $stmt_pending->get_result();
+
 } catch (Exception $e) {
     echo "Connection failed: " . $e->getMessage();
 }
@@ -36,10 +51,14 @@ try {
     <title>(ADMIN) Edit User</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #A9A9A9, #FFD700); /* ไล่สีพื้นหลัง */
-            font-family: 'Arial', sans-serif;
+     <style>
+         body {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.5), rgba(0, 0, 0, 0.5)); /* ไล่สีจากสีเหลืองไปสีดำ */
+            background-size: cover; /* ปรับขนาดให้เต็มพื้นที่ */
+            margin: 0; /* ลบ margin ของ body */
+            height: 100vh; /* ให้ความสูงของ body เป็น 100% ของ viewport */
+	
+	font-family: 'Arial', sans-serif;
         }
 
         .navbar {
@@ -156,83 +175,91 @@ try {
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
                     <a class="nav-item nav-link" href="admin.php"><i class="fas fa-home fa-icon"></i>Home</a>
-                    <a class="nav-item nav-link active" href="#"><i class="fas fa-edit fa-icon"></i>Edit User</a>
                     <a class="nav-item nav-link" href="profile.php"><i class="fas fa-user fa-icon"></i>Profile</a>
                     <a class="nav-item nav-link" href="logout.php"><i class="fas fa-sign-out-alt fa-icon"></i>Logout</a>
                 </div>
             </div>
         </div>
     </nav>
-
     <div class="container mt-5">
-        <h1 class="text-center text-primary">แก้ไขข้อมูลผู้ใช้</h1>
-
-        <!-- Search User by Email -->
-        <form action="edit.php" method="get" class="mb-5">
-            <div class="input-group">
-                <input type="email" class="form-control" name="email" placeholder="ค้นหาผู้ใช้โดยอีเมล" required>
-                <button class="btn btn-primary" type="submit"><i class="fas fa-search fa-icon"></i> ค้นหา</button>
+        <!-- โค้ดที่เพิ่มเข้ามา -->
+        <?php if (isset($_SESSION['success'])) { ?>
+            <div class="alert alert-success" role="alert">
+                <?php
+                    echo $_SESSION['success'];
+                    unset($_SESSION['success']);
+                ?>
             </div>
-        </form>
+        <?php } ?>
 
-        <?php if(isset($_GET['email'])) {
-            $email = $_GET['email'];
-            $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $user = $stmt->get_result()->fetch_assoc();
+        <?php if (isset($_SESSION['error'])) { ?>
+            <div class="alert alert-danger" role="alert">
+                <?php
+                    echo $_SESSION['error'];
+                    unset($_SESSION['error']);
+                ?>
+            </div>
+        <?php } ?>
 
-            if ($user) { ?>
-                <form action="update.php" method="post">
-                    <?php if(isset($_SESSION['error'])) { ?>
-                        <div class="alert alert-danger" role="alert">
-                            <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
-                        </div>
-                    <?php } ?>
-                    <?php if(isset($_SESSION['success'])) { ?>
-                        <div class="alert alert-success" role="alert">
-                            <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
-                        </div>
-                    <?php } ?>
+<div class="container mt-5">
+    <h1 class="text-center">แก้ไขข้อมูลผู้ใช้</h1>
 
-                    <input type="hidden" name="emailEdit" value="<?php echo htmlspecialchars($user['email']); ?>">
-
-                    <div class="mb-3">
-                        <input type="text" class="form-control" name="firstnameEdit" value="<?php echo htmlspecialchars($user['firstname']); ?>" placeholder="ชื่อจริง" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" name="lastnameEdit" value="<?php echo htmlspecialchars($user['lastname']); ?>" placeholder="นามสกุล" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="password" class="form-control" name="passwordEdit" placeholder="รหัสผ่าน (เว้นว่างหากไม่ต้องการเปลี่ยน)">
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" name="phoneEdit" value="<?php echo htmlspecialchars($user['phone']); ?>" placeholder="เบอร์โทร">
-                    </div>
-                    <div class="mb-3">
-                        <select class="form-control" name="status" required>
-                            <option value="admin" <?php if ($user['urole'] == 'admin') echo 'selected'; ?>>Admin</option>
-                            <option value="user" <?php if ($user['urole'] == 'user') echo 'selected'; ?>>User</option>
-                        </select>
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-warning btn-lg"><i class="fas fa-save fa-icon"></i> บันทึก</button>
-                    </div>
-                </form>
-            <?php } else { ?>
-                <div class="alert alert-danger" role="alert">
-                    ไม่พบผู้ใช้ที่มีอีเมลนี้
-                </div>
-            <?php } 
-        } ?>
-
-        <!-- Back to Home Button -->
-        <div class="text-center mt-5">
-            <a href="admin.php" class="btn btn-primary btn-lg"><i class="fas fa-home fa-icon"></i> กลับไปหน้าหลัก</a>
-        </div>
+    <!-- Card สำหรับผู้ใช้ที่อยู่ในระบบ -->
+   <div class="card mb-4">
+    <div class="card-header">
+        <h3>ผู้ใช้ที่อยู่ในระบบ</h3>
     </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>อีเมล</th>
+                    <th>ชื่อจริง</th>
+                    <th>นามสกุล</th>
+                    <th>เบอร์โทร</th>
+                    <th>สถานะ</th>
+                    <th>แก้ไข</th>
+                    <th>ลบ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($user = $existing_users->fetch_assoc()) { ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                        <td><?php echo htmlspecialchars($user['firstname']); ?></td>
+                        <td><?php echo htmlspecialchars($user['lastname']); ?></td>
+                        <td><?php echo htmlspecialchars($user['phone']); ?></td>
+                        <td><?php echo htmlspecialchars($user['urole']); ?></td>
+                        <td>
+                            <a href="update.php?id=<?php echo urlencode($user['id']); ?>" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> แก้ไข
+                            </a>
+                        </td>
+                        <td>
+                            <a href="deleteEdit.php?id=<?php echo urlencode($user['id']); ?>" class="btn btn-danger" onclick="return confirm('คุณต้องการลบผู้ใช้นี้หรือไม่?');">
+                                <i class="fas fa-trash"></i> ลบ
+                            </a>
+                        </td>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Pagination สำหรับผู้ใช้ที่อยู่ในระบบ -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
+                    <li class="page-item <?php echo $page == $i ? 'active' : ''; ?>">
+                        <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    </li>
+                <?php } ?>
+            </ul>
+        </nav>
+    </div>
+</div>
+    <!-- Card สำหรับผู้ใช้ที่รอการอนุมัติ -->
+
+
 </body>
 </html>
 

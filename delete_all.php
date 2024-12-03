@@ -8,8 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // สร้างคำสั่ง SQL เพื่อลบข้อมูลทั้งหมดจากตาราง detec_history
-    $delete_sql = "DELETE FROM detec_history";
+    // สร้างคำสั่ง SQL เพื่อลบข้อมูลที่ status เป็น ORANGE หรือ RED
+    $delete_sql = "DELETE FROM detec_history WHERE status IN ('ORANGE', 'RED')";
 
     if ($conn->query($delete_sql) === TRUE) {
         $response = ['success' => true];

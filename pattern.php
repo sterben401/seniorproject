@@ -2,10 +2,21 @@
 session_start();
 require_once 'config/db.php';
 
-if (!isset($_SESSION['admin_login'])) {
+
+// Check if admin or user is logged in
+if (isset($_SESSION['admin_login'])) {
+    // Admin is logged in
+    $role = 'admin';
+} elseif (isset($_SESSION['user_login'])) {
+    // User is logged in
+    $role = 'user';
+} else {
+    // No one is logged in
     $_SESSION['error'] = 'กรุณาเข้าสู่ระบบ!';
     header('location: signin.php');
+    exit();
 }
+$page_title = $role === 'admin' ? '(ADMIN) A Brute Force Attack Monitoring System' : '(USER) A Brute Force Attack Monitoring System';
 ?>
 
 <!DOCTYPE html>
@@ -13,104 +24,194 @@ if (!isset($_SESSION['admin_login'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>(ADMIN) A Brute Force Attack Monitoring System from Web Access Log Files</title>
+    <title>Pattern</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <style>
-        body {
-            background-color: #f7f7f7;
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+     <style>
+       body {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.5), rgba(0, 0, 0, 0.5)); /* ไล่สีจากสีเหลืองไปสีดำ */
+            background-size: cover; /* ปรับขนาดให้เต็มพื้นที่ */
+            margin: 0; /* ลบ margin ของ body */
+            height: 100vh; /* ให้ความสูงของ body เป็น 100% ของ viewport */
+
+	font-family: 'Arial', sans-serif;
         }
-        .container {
-            margin-top: 20px;
-        }
+
         .navbar {
-            background-color: #343a40;
+            background-color: #212529; /* สีพื้นหลังของ Navbar เป็นสีเข้ม */
+            border-bottom: 3px solid #FFD700; /* ขอบล่างสีทอง */
         }
-        .navbar a {
-            color: white !important;
+
+        .navbar-brand {
+            color: #212121; /* สีข้อความของ Navbar */
+            font-size: 24px;
+            font-weight: bold;
         }
-        .pattern-container {
-            background-color: #fff;
-            border-radius: 0.5rem;
+
+        .navbar-brand .admin {
+            color: #FFD700; /* สีทองเข้มสำหรับ (ADMIN) */
+        }
+
+        .navbar-brand .system {
+            color: #212121; /* สีเทาเข้มสำหรับ A Brute Force Attack Monitoring System */
+        }
+
+        .navbar-nav .nav-link {
+            color: #FFD700; /* สีข้อความลิงค์ใน Navbar */
+            font-weight: bold;
+            background-color: #343a40; /* สีพื้นหลังของลิงค์ใน Navbar */
+            border-radius: 5px; /* มุมโค้งมน */
+            padding: 10px 15px; /* ขนาดของปุ่ม */
+            transition: background-color 0.3s; /* เปลี่ยนสีพื้นหลังเมื่อ Hover */
+        }
+
+        .navbar-nav .nav-link.active {
+            color: #FFFFFF; /* สีข้อความลิงค์ที่เลือกใน Navbar */
+            background-color: #FFD700; /* สีพื้นหลังของลิงค์ที่เลือก */
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: #FFD700; /* สีพื้นหลังเมื่อ Hover */
+            color: #343a40; /* สีข้อความเมื่อ Hover */
+        }
+
+        .container {
+            margin-top: 30px;
+            background-color: #FFFFFF; /* สีพื้นหลังของการ์ด */
+            border-radius: 15px;
             padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* เงาของการ์ด */
         }
-        .add-edit-button {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-        .add-edit-button .btn {
-            min-width: 150px;
-            font-size: 16px;
-        }
+
         .card {
-            border: none;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            border: 1px solid #DCDCDC; /* เส้นขอบการ์ดสีเทาอ่อน */
+            transition: transform 0.3s, box-shadow 0.3s;
         }
-        .card-header {
-            background-color: #343a40;
-            color: #fff;
-            border-bottom: 1px solid #dee2e6;
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
-        .card-body {
-            text-align: center;
+
+        .card-title {
+            font-weight: bold;
+            color: #FFD700; /* สีหัวข้อการ์ด */
         }
+
         .btn-lg {
-            font-size: 18px;
+            margin-top: 10px;
+            border-radius: 25px;
             padding: 10px 20px;
+            color: white;
+            transition: background-color 0.3s ease;
         }
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
+
+        .btn-warning {
+            background-color: #FFD700; /* สีพื้นหลังปุ่ม Warning */
         }
-        .btn-danger:hover {
-            background-color: #c82333;
-            border-color: #bd2130;
+
+        .btn-warning:hover {
+            background-color: #F5C300; /* สีพื้นหลังปุ่ม Warning เมื่อ Hover */
+        }
+
+        .btn-success {
+            background-color: #A9A9A9; /* สีพื้นหลังปุ่ม Success */
+        }
+
+        .btn-success:hover {
+            background-color: #6C6C6C; /* สีพื้นหลังปุ่ม Success เมื่อ Hover */
+        }
+
+        .btn-primary {
+            background-color: #FFD700; /* สีพื้นหลังปุ่ม Primary */
+        }
+
+        .btn-primary:hover {
+            background-color: #F5C300; /* สีพื้นหลังปุ่ม Primary เมื่อ Hover */
+        }
+
+        .text-primary {
+            color: #FFD700 !important;
+        }
+
+        h3 {
+            font-weight: bold;
+        }
+
+        .fa-icon {
+            margin-right: 10px;
         }
     </style>
 </head>
+</head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" style="font-weight: bold; color: #dc3545; font-size: 24px;">A Brute Force Attack Monitoring System from Web Access Log Files</a>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav">
-                    <a class="nav-item nav-link" href="admin.php">หน้าหลัก</a>
-                    <a class="nav-item nav-link" href="#">โปรไฟล์</a>
-                    <a class="nav-item">
-                        <a class="btn btn-danger btn-lg" href="logout.php">ออกจากระบบ</a>
-                    </a>
-                </div>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+  <a class="navbar-brand">
+   <span class="role" style="color: #FFD700;">
+      <?php 
+         if (isset($_SESSION['admin_login'])) {
+             echo '(ADMIN)';  // Display ADMIN if admin is logged in
+         } elseif (isset($_SESSION['user_login'])) {
+             echo '(USER)';   // Display USER if regular user is logged in
+         } 
+      ?>
+   </span>
+   <span class="system">A Brute Force Attack Monitoring System</span>
+</a>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+<a class="nav-item nav-link active" 
+   href="<?php 
+      if (isset($_SESSION['admin_login'])) {
+          echo 'admin.php';  // Admin dashboard
+      } elseif (isset($_SESSION['user_login'])) {
+          echo 'homeuser.php';  // User dashboard
+      } else {
+          echo 'signin.php';  // Redirect to login if no session
+      }
+   ?>">
+   <i class="fas fa-home fa-icon"></i> Home
+</a> 
+                <a class="nav-item nav-link" href="profile.php"><i class="fas fa-user fa-icon"></i>Profile</a>
+                <a class="nav-item nav-link" href="logout.php"><i class="fas fa-sign-out-alt fa-icon"></i>Logout</a>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <div class="container pattern-container">
         <div class="card">
-           
-
-            
             <div class="card-body">
-            	<h1 class="card-title">เพิ่ม/แก้ไข Pattern</h1>
+                <h1 class="system">เพิ่ม/แก้ไข Pattern</h1>
                 <div class="add-edit-button">
-                    <a href="add_pattern.php" class="btn btn-success btn-lg">
-                        <i class="bi bi-plus-lg"></i> เพิ่ม Pattern
+                    <a href="add_group.php" class="btn btn-success btn-lg">
+                        <i class="bi bi-plus-lg"></i> Add Group
                     </a>
-                    <a href="edit_pattern.php" class="btn btn-primary btn-lg">
-                        <i class="bi bi-pencil"></i> แก้ไข Pattern
+                    <a href="groups_list.php" class="btn btn-primary btn-lg">
+                        <i class="bi bi-pencil"></i> Group List
                     </a>
+                    
+
                 </div>
             </div>
         </div>
+		<a type="button" class="btn btn-danger btn-lg" 
+			   href="<?php 
+			      if (isset($_SESSION['admin_login'])) {
+				  echo 'admin.php';  // Admin dashboard
+			      } elseif (isset($_SESSION['user_login'])) {
+				  echo 'homeuser.php';  // User dashboard
+			      } else {
+				  echo 'signin.php';  // Redirect to login if no session
+			      }
+			   ?>">
+			   <i class="fas fa-home fa-icon"></i> กลับไปหน้าหลัก
+			</a>
     </div>
 
-    <div class="d-grid gap-2 col-6 mx-auto mt-3">
-        <a type="button" class="btn btn-danger btn-lg" href="admin.php">
-            <i class="bi bi-arrow-left"></i> กลับ
-        </a>
-    </div>
 
     <!-- Bootstrap Icons CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-6Nq2E7PxeHnAFO/x9pVxTqIBwT5Gc1WQzdHb7rjAfm80+7zP+g5BX4kYG7buE3jz2" crossorigin="anonymous"></script>

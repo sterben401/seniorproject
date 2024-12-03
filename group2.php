@@ -57,14 +57,14 @@ function getGroupById($conn, $group_id) {
 }
 
 function getPatternsByGroupId($conn, $group_id) {
-    $stmt = $conn->prepare("SELECT * FROM Pattern WHERE group_id = :group_id");
+    $stmt = $conn->prepare("SELECT * FROM pattern_table WHERE group_id = :group_id");
     $stmt->bindParam(':group_id', $group_id);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function getPatternsByGroupIdWithPagination($conn, $group_id, $offset, $limit) {
-    $stmt = $conn->prepare("SELECT * FROM Pattern WHERE group_id = :group_id LIMIT :offset, :limit");
+    $stmt = $conn->prepare("SELECT * FROM pattern_table WHERE group_id = :group_id LIMIT :offset, :limit");
     $stmt->bindParam(':group_id', $group_id);
     $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
@@ -79,7 +79,7 @@ if (isset($_POST['delete_patterns'])) {
     // ตรวจสอบว่ามี ID ของแพทเทิร์นที่ถูกเลือกหรือไม่
     if (!empty($pattern_ids)) {
         $placeholders = implode(',', array_fill(0, count($pattern_ids), '?'));
-        $stmt = $conn->prepare("DELETE FROM Pattern WHERE id IN ($placeholders)");
+        $stmt = $conn->prepare("DELETE FROM pattern_table WHERE id IN ($placeholders)");
         
         // ลบแพทเทิร์น
         $stmt->execute($pattern_ids);
@@ -96,7 +96,7 @@ if (isset($_POST['delete_patterns'])) {
 if (isset($_POST['delete_single_pattern'])) {
     $pattern_id = $_POST['pattern_id'];
 
-    $stmt = $conn->prepare("DELETE FROM Pattern WHERE id = :id");
+    $stmt = $conn->prepare("DELETE FROM pattern_table WHERE id = :id");
     $stmt->bindParam(':id', $pattern_id);
     if ($stmt->execute()) {
         $_SESSION['success'] = "ลบแพทเทิร์นเรียบร้อยแล้ว!";
@@ -115,7 +115,7 @@ if (isset($_POST['edit_pattern'])) {
 
     // ตรวจสอบค่าก่อนอัปเดต
     if (!empty($new_name)) {
-        $stmt = $conn->prepare("UPDATE Pattern SET namePattern = :new_name WHERE id = :pattern_id");
+        $stmt = $conn->prepare("UPDATE pattern_table SET namePattern = :new_name WHERE id = :pattern_id");
         $stmt->bindParam(':new_name', $new_name);
         $stmt->bindParam(':pattern_id', $pattern_id);
         
@@ -147,7 +147,7 @@ if (isset($_POST['add_pattern'])) {
     $patterns = explode("\n", $new_pattern_text); // Split the input into an array
 
     // Prepare the SQL statement
-    $stmt = $conn->prepare("INSERT INTO Pattern (group_id, namePattern,  md5) VALUES (:group_id, :namePattern, :md5)");
+    $stmt = $conn->prepare("INSERT INTO pattern_table (group_id, namePattern,  md5) VALUES (:group_id, :namePattern, :md5)");
     
     foreach ($patterns as $pattern_name) {
         $pattern_name = trim($pattern_name); // Trim whitespace
@@ -156,7 +156,7 @@ if (isset($_POST['add_pattern'])) {
             $md5 = md5($pattern_name);
 
             // Check if the pattern already exists
-            $check_stmt = $conn->prepare("SELECT COUNT(*) FROM Pattern WHERE md5 = :md5");
+            $check_stmt = $conn->prepare("SELECT COUNT(*) FROM pattern_table WHERE md5 = :md5");
             $check_stmt->bindParam(':md5', $md5);
             $check_stmt->execute();
             $exists = $check_stmt->fetchColumn();
